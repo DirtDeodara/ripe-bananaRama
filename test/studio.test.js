@@ -59,23 +59,80 @@ describe('studio routes tests', () => {
       });
   });
 
-  // it('can GET a studio by id', async() => {
-  //   const studio = await Studio.create({
-  //     name: 'Ursa Major',
-  //     address: {
-  //       city: 'Portland',
-  //       state: 'Oregon',
-  //       country: 'USA'
-  //     }
-  //   });
-  //   return request(app)
-  //     .get(`/api/v1/studios/${studio._id}`)
-  //     .then(res => {
-  //       const studioJSON = JSON.parse(JSON.stringify(studio));
-  //       expect(res.body).toEqual({ ...studioJSON });
-  //     });
-  // });
+  it('can GET a studio by id', async() => {
+    const studio = await Studio.create({
+      name: 'Ursa Major',
+      address: {
+        city: 'Portland',
+        state: 'Oregon',
+        country: 'USA'
+      }
+    });
+    return request(app)
+      .get(`/api/v1/studios/${studio._id}`)
+      .then(res => {
+        const studioJSON = JSON.parse(JSON.stringify(studio));
+        expect(res.body).toEqual({ ...studioJSON });
+      });
+  });
+
+  it('can update a studio with PUT', async() => {
+    const studio = await Studio.create({
+      name: 'Ursa Major',
+      address: {
+        city: 'Portland',
+        state: 'Oregon',
+        country: 'USA'
+      }
+    });
+    return request(app)
+      .put(`/api/v1/studios/${studio._id}`)
+      .send({
+        name: 'Ursa Minor',
+        address: {
+          city: 'Rochester',
+          state: 'NY',
+          country: 'USA'
+        }
+      })
+      .then(res => {
+        expect(res.body).toEqual({
+          __v: 0,
+          _id: expect.any(String),
+          name: 'Ursa Minor',
+          address: {
+            city: 'Rochester',
+            state: 'NY',
+            country: 'USA'
+          }
+        });
+      });
+  });
+
+  it('can DELETE a studio', async() => {
+    const studio = await Studio.create({
+      name: 'Ursa Minor',
+      address: {
+        city: 'Rochester',
+        state: 'NY',
+        country: 'USA'
+      }
+    });
+    return request(app)
+      .delete(`/api/v1/studios/${studio._id}`)
+      .then(res => {
+        expect(res.body).toEqual({
+          __v: 0,
+          _id: expect.any(String),
+          name: 'Ursa Minor',
+          address: {
+            city: 'Rochester',
+            state: 'NY',
+            country: 'USA'
+          }
+        });
+      });
+  });
 
 
 });
-
