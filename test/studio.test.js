@@ -72,8 +72,15 @@ describe('studio routes tests', () => {
     return request(app)
       .get(`/api/v1/studios/${studio._id}`)
       .then(res => {
-        const studioJSON = JSON.parse(JSON.stringify(studio));
-        expect(res.body).toEqual({ ...studioJSON });
+        expect(res.body).toEqual({
+          _id: expect.any(String),
+          name: 'Ursa Major',
+          address: {
+            city: 'Portland',
+            state: 'Oregon',
+            country: 'USA'
+          }
+        });
       });
   });
 
