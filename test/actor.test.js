@@ -94,6 +94,23 @@ describe('actor route tests', () => {
       });
   });
 
+  it('can DELETE a actor', async() => {
+    const actor = await Actor.create({
+      name: 'Nerd Bomb',
+      dob: '1982-05-14',
+      pob: 'Rochester, NY'
+    });
+    return request(app)
+      .delete(`/api/v1/actors/${actor._id}`)
+      .then(res => {
+        expect(res.body).toEqual({
+          _id: expect.any(String),
+          name: 'Nerd Bomb',
+          dob: '1982-05-14T00:00:00.000Z',
+          pob: 'Rochester, NY'
+        });
+      });
+  });
 
 
 
