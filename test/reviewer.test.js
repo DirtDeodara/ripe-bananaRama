@@ -67,6 +67,23 @@ describe('reviewer routes tests', () => {
       });
   });
 
+  it('can update with PUT', async() => {
+    const reviewer = await Reviewer.create({ 
+      name: 'Mr. Wrong',
+      company: 'jerk inc.' 
+    });
+    return request(app)
+      .put(`/api/v1/reviewers/${reviewer._id}`)
+      .send({ name: 'Ted', company: 'OpinionaTED' })
+      .then(res => {
+        expect(res.body).toEqual({
+          _id: expect.any(String),
+          name: 'Ted',
+          company: 'OpinionaTED'
+        });
+      });
+  });
+
 
 
 
