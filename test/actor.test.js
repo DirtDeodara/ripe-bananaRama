@@ -24,7 +24,7 @@ describe('actor route tests', () => {
       .send({
         name: 'Havard Forestborn',
         dob: '2010-06-06',
-        pob: 'Humbolt, CA'
+        pob: 'Humboldt, CA'
       })
       .then(res => {
         expect(res.body).toEqual({
@@ -32,7 +32,64 @@ describe('actor route tests', () => {
           _id: expect.any(String),
           name: 'Havard Forestborn',
           dob: '2010-06-06T00:00:00.000Z',
-          pob: 'Humbolt, CA'
+          pob: 'Humboldt, CA'
+        });
+      });
+  });
+
+  it('can GET all actors', async() => {
+    const actors = await Actor.create([
+      { name: 'Havard Forestborn', dob: '2010-06-06', pob: 'Humboldt, CA' },
+      { name: 'Nerd Bomb', dob: '1982-05-14', pob: 'Rochester, NY' },
+      { name: 'Maxwell Buttercup Kitty', dob: '2015-08-08', pob: 'Not sure' }
+    ]);
+    return request(app)
+      .get('/api/v1/actors')
+      .then(res => {
+        const actorsJSON = JSON.parse(JSON.stringify(actors));
+        actorsJSON.forEach(actor => {
+          expect(res.body).toContainEqual({ name: actor.name, _id: actor._id });
+        });
+      });
+  });
+
+  it('can GET a actor by id', async() => {
+    const actor = await Actor.create({
+      name: 'Havard Forestborn',
+      dob: '2010-06-06',
+      pob: 'Humboldt, CA'
+    });
+    return request(app)
+      .get(`/api/v1/actors/${actor._id}`)
+      .then(res => {
+        expect(res.body).toEqual({
+          _id: expect.any(String),
+          name: 'Havard Forestborn',
+          dob: '2010-06-06T00:00:00.000Z',
+          pob: 'Humboldt, CA'
+        });
+      });
+  });
+
+  it('can update a studio with PUT', async() => {
+    const actor = await Actor.create({
+      name: 'Havard Forestborn',
+      dob: '2010-06-06',
+      pob: 'Humboldt, CA'
+    });
+    return request(app)
+      .put(`/api/v1/actors/${actor._id}`)
+      .send({
+        name: 'Nerd Bomb',
+        dob: '1982-05-14',
+        pob: 'Rochester, NY'
+      })
+      .then(res => {
+        expect(res.body).toEqual({
+          _id: expect.any(String),
+          name: 'Nerd Bomb',
+          dob: '1982-05-14T00:00:00.000Z',
+          pob: 'Rochester, NY'
         });
       });
   });
