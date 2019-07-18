@@ -22,18 +22,52 @@ describe('reviewer routes tests', () => {
     return request(app)
       .post('/api/v1/reviewers')
       .send({
-        name: 'Mr. Opinion',
-        company: 'Talk2Much'
+        name: 'Mr. Wrong',
+        company: 'jerk inc.'
       })
       .then(res => {
         expect(res.body).toEqual({
           __v: 0,
           _id: expect.any(String),
-          name: 'Mr. Opinion',
-          company: 'Talk2Much'
+          name: 'Mr. Wrong',
+          company: 'jerk inc.'
         });
       });
   });
+
+  it('can GET all reviewers', async() => {
+    const reviewers = await Reviewer.create([
+      { name: 'Mr. Wrong', company: ' jerk inc.' },
+      { name: 'Ted', company: 'OpinionaTED' },
+      { name: 'Y', company: 'Y Do I Care' }
+    ]);
+    return request(app)
+      .get('/api/v1/reviewers')
+      .then(res => {
+        const reviewersJSON = JSON.parse(JSON.stringify(reviewers));
+        reviewersJSON.forEach(reviewer => {
+          expect(res.body).toContainEqual({ name: reviewer.name, company: reviewer.company, _id: reviewer._id });
+        }); 
+      });
+  });
+
+  it('can GET a reviewer by id', async() => {
+    const reviewer = await Reviewer.create({ 
+      name: 'Mr. Wrong',
+      company: 'jerk inc.' 
+    });
+    return request(app)
+      .get(`/api/v1/reviewers/${reviewer._id}`)
+      .then(res => {
+        expect(res.body).toEqual({
+          _id: expect.any(String),
+          name: 'Mr. Wrong',
+          company: 'jerk inc.'
+        });
+      });
+  });
+
+
 
 
 });
