@@ -18,6 +18,7 @@ describe('film routes tests', () =>  {
 
   let actors = null;
   let studio = null;
+  // let cast = null;
   beforeEach(async() => {
     studio = JSON.parse(JSON.stringify(await Studio.create({ name: 'Ursa Major', address: { city: 'Portland', state: 'Oregon', country: 'USA' } })));
     actors = await Actor.create([
@@ -28,6 +29,10 @@ describe('film routes tests', () =>  {
     actors.forEach(actor => {
       JSON.parse(JSON.stringify(actor));
     });
+    // cast = actors.map((actor, i) => ({
+    //   role: `extra${i}`,
+    //   actor: actor._id.toString()
+    // }));
   });
 
   afterAll(() => {
@@ -55,6 +60,46 @@ describe('film routes tests', () =>  {
       });
   });
 
+  it('can GET all films', async() => {
+    const films = await Film.create([
+      { title: 'Life of Harvey', studio: studio._id, released: 2020, cast: { role: 'The Dog', actor: actors[0]._id } },
+      { title: 'Life of Harvey 2', studio: studio._id, released: 2023, cast: { role: 'The Dog', actor: actors[0]._id } }
+    ]);
+    return request(app)
+      .get('/api/v1/films')
+      .then(res => {
+        const filmsJSON = JSON.parse(JSON.stringify(films));
+        filmsJSON.forEach(film => {
+          expect(res.body).toContainEqual({ _id: expect.any(String), title: film.title, studio: { _id: studio._id, name: studio.name }, released: film.released });
+        });
+      });
+  });
+
+  it('can GET a film by id', async() => {
+    const film = await Film.create({ title: 'Life of Harvey', studio: studio._id, released: 2020, cast: { role: 'The Dog', actor: actors[0]._id } });
+    return request(app)
+      .get(`/api/v1/films/${film._id}`)
+      .then(res => {
+        expect(res.body).toEqual({ 
+          title: 'Life of Harvey', 
+          studio: { _id: studio._id, name: studio.name },
+          released: 2020, 
+          cast: [{ _id: expect.any(String), role: 'The Dog', actor: { _id: actors[0]._id.toString(), name: actors[0].name } }] });
+      });
+  });
+
+  it('can DELETE a film', async() => {
+    const film = await Film.create({ title: 'Life of Harvey', studio: studio._id, released: 2020, cast: { role: 'The Dog', actor: actors[0]._id } });
+    return request(app)
+      .delete(`/api/v1/films/${film._id}`)
+      .then(res => {
+        expect(res.body).toEqual({ 
+          title: 'Life of Harvey', 
+          studio: { _id: studio._id, name: studio.name },
+          released: 2020, 
+          cast: [{ _id: expect.any(String), role: 'The Dog', actor: { _id: actors[0]._id.toString(), name: actors[0].name } }] });
+      });
+  });
   
 
 });
