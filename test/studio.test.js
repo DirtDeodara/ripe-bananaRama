@@ -83,39 +83,6 @@ describe('studio routes tests', () => {
       });
   });
 
-  it('can update a studio with PUT', async() => {
-    const studio = await Studio.create({
-      name: 'Ursa Major',
-      address: {
-        city: 'Portland',
-        state: 'Oregon',
-        country: 'USA'
-      }
-    });
-    return request(app)
-      .put(`/api/v1/studios/${studio._id}`)
-      .send({
-        name: 'Ursa Minor',
-        address: {
-          city: 'Rochester',
-          state: 'NY',
-          country: 'USA'
-        }
-      })
-      .then(res => {
-        expect(res.body).toEqual({
-          __v: 0,
-          _id: expect.any(String),
-          name: 'Ursa Minor',
-          address: {
-            city: 'Rochester',
-            state: 'NY',
-            country: 'USA'
-          }
-        });
-      });
-  });
-
   it('can DELETE a studio', async() => {
     const studio = await Studio.create({
       name: 'Ursa Minor',
