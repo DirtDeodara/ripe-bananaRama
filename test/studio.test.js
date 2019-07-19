@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const connect = require('../lib/utils/connect');
 const app = require('../lib/app');
 const Studio = require('../lib/models/StudioSchema');
+const Film = require('../lib/models/FilmSchema');
 
 describe('studio routes tests', () => {
 
@@ -60,14 +61,8 @@ describe('studio routes tests', () => {
   });
 
   it('can GET a studio by id', async() => {
-    const studio = await Studio.create({
-      name: 'Ursa Major',
-      address: {
-        city: 'Portland',
-        state: 'Oregon',
-        country: 'USA'
-      }
-    });
+    const studio = await Studio.create({ name: 'Ursa Major', address: { city: 'Portland', state: 'Oregon', country: 'USA' } });
+    const film = await Film.create({ title: 'Life of Harvey', studio, released: 2020 });
     return request(app)
       .get(`/api/v1/studios/${studio._id}`)
       .then(res => {
@@ -78,7 +73,8 @@ describe('studio routes tests', () => {
             city: 'Portland',
             state: 'Oregon',
             country: 'USA'
-          }
+          },
+          films: [{ _id: film._id.toString(), title: film.title }]
         });
       });
   });

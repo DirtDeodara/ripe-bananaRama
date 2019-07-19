@@ -6,6 +6,8 @@ const app = require('../lib/app');
 const Film = require('../lib/models/FilmSchema');
 const Actor = require('../lib/models/ActorSchema');
 const Studio = require('../lib/models/StudioSchema');
+const Reviewer = require('../lib/models/ReviewerSchema');
+const Review = require('../lib/models/ReviewSchema');
 
 describe('film routes tests', () =>  {
 
@@ -73,6 +75,8 @@ describe('film routes tests', () =>  {
 
   it('can GET a film by id', async() => {
     const film = await Film.create({ title: 'Life of Harvey', studio: studio._id, released: 2020, cast: { role: 'The Dog', actor: actors[0]._id } });
+    const reviewer = await Reviewer.create({ name: 'Mr. Wrong', company: ' jerk inc.' });
+    const review = await Review.create({ rating: 9, reviewer, film, review: 'this was bad' });
     return request(app)
       .get(`/api/v1/films/${film._id}`)
       .then(res => {
@@ -80,7 +84,9 @@ describe('film routes tests', () =>  {
           title: 'Life of Harvey', 
           studio: { _id: studio._id, name: studio.name },
           released: 2020, 
-          cast: [{ _id: expect.any(String), role: 'The Dog', actor: { _id: actors[0]._id.toString(), name: actors[0].name } }] });
+          cast: [{ _id: expect.any(String), role: 'The Dog', actor: { _id: actors[0]._id.toString(), name: actors[0].name } }],
+          reviews: [{ _id: review._id.toString(), rating: review.rating, review: review.review, reviewer: { _id: reviewer._id.toString(), name: reviewer.name } }]
+        });
       });
   });
 
