@@ -7,6 +7,7 @@ const Film = require('../lib/models/FilmSchema');
 const Actor = require('../lib/models/ActorSchema');
 const Studio = require('../lib/models/StudioSchema');
 const Reviewer = require('../lib/models/ReviewerSchema');
+const Review = require('../lib/models/ReviewSchema');
 
 
 describe('review routes tests', () => {
@@ -55,6 +56,26 @@ describe('review routes tests', () => {
           updatedAt: expect.any(String)
         });
       });
+  });
+
+  it('can GET only 100 reviews', async() => {
+    await Promise.all([...Array(101)].map((i) => {
+      return Review.create({
+        rating: 1,
+        reviewer: reviewer._id.toString(),
+        review: `Worst movie ever #${i}`,
+        film: film._id.toString()
+      });
+    }));
+
+    return request(app)
+      .get('/api/v1/reviews')
+      .then(res => {
+        expect(res.body).toHaveLength(100);
+      });
+
+  
+
   });
 
 });
