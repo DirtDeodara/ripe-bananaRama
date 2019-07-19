@@ -4,6 +4,10 @@ const mongoose = require('mongoose');
 const connect = require('../lib/utils/connect');
 const app = require('../lib/app');
 const Reviewer = require('../lib/models/ReviewerSchema');
+const Review = require('../lib/models/ReviewSchema');
+const Actor = require('../lib/models/ActorSchema');
+const Studio = require('../lib/models/StudioSchema');
+const Film = require('../lib/models/FilmSchema');
 
 describe('reviewer routes tests', () => {
 
@@ -56,16 +60,62 @@ describe('reviewer routes tests', () => {
       name: 'Mr. Wrong',
       company: 'jerk inc.' 
     });
+    
+    const actor = await Actor.create({
+      name: 'Havard Forestborn',
+      dob: '2010-06-06',
+      pob: 'Humboldt, CA'
+    });
+    
+    const studio = await Studio.create({
+      name: 'Ursa Major',
+      address: {
+        city: 'Portland',
+        state: 'Oregon',
+        country: 'USA'
+      }
+    });
+
+    const film = await Film.create({
+      title: 'Life of Harvey',
+      studio: studio._id,
+      released: 2020,
+      cast: [{
+        role: 'The Dog',
+        actor: actor._id
+      }]
+    });
+
+    const review = await Review.create({
+      rating: 3,
+      reviewer: reviewer._id,
+      review: 'this shit was lit. i mean litter. like garbage.',
+      film: film._id
+    });
+
+
+
     return request(app)
       .get(`/api/v1/reviewers/${reviewer._id}`)
       .then(res => {
         expect(res.body).toEqual({
           _id: expect.any(String),
           name: 'Mr. Wrong',
-          company: 'jerk inc.'
+          company: 'jerk inc.',
+          reviews: [{
+            _id: review._id.toString(),
+            rating: review.rating,
+            review: review.review,
+            film: {
+              _id: film._id.toString(),
+              title: film.title
+            }
+          }]
         });
       });
   });
+
+
 
   it('can update with PUT', async() => {
     const reviewer = await Reviewer.create({ 
