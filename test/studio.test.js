@@ -5,6 +5,7 @@ const connect = require('../lib/utils/connect');
 const app = require('../lib/app');
 const Studio = require('../lib/models/StudioSchema');
 const Film = require('../lib/models/FilmSchema');
+const Actor = require('../lib/models/ActorSchema');
 
 describe('studio routes tests', () => {
 
@@ -79,7 +80,7 @@ describe('studio routes tests', () => {
       });
   });
 
-  it('can DELETE a studio', async() => {
+  it('can DELETE a studio without films', async() => {
     const studio = await Studio.create({
       name: 'Ursa Minor',
       address: {
@@ -101,6 +102,39 @@ describe('studio routes tests', () => {
             country: 'USA'
           }
         });
+      });
+  });
+
+  it('it will throw and error can DELETE a studio without films', async() => {
+    const studio = await Studio.create({
+      name: 'Ursa Minor',
+      address: {
+        city: 'Rochester',
+        state: 'NY',
+        country: 'USA'
+      }
+    });
+
+    const actor = await Actor.create({
+      name: 'Havard Forestborn',
+      dob: '2010-06-06',
+      pob: 'Humboldt, CA'
+    });
+
+    const film = await Film.create({
+      title: 'Life of Harvey',
+      studio: studio._id,
+      released: 2020,
+      cast: [{
+        role: 'The Dog',
+        actor: actor._id
+      }]
+    });
+
+    return request(app)
+      .delete(`/api/v1/studios/${studio._id}`)
+      .then(res => {
+        expect(res.status).toEqual(409);
       });
   });
 
