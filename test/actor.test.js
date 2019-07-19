@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const connect = require('../lib/utils/connect');
 const app = require('../lib/app');
 const Actor = require('../lib/models/ActorSchema');
+const Studio = require('../lib/models/StudioSchema');
+const Film = require('../lib/models/FilmSchema');
 
 describe('actor route tests', () => {
 
@@ -59,6 +61,26 @@ describe('actor route tests', () => {
       dob: '2010-06-06',
       pob: 'Humboldt, CA'
     });
+
+    const studio = await Studio.create({
+      name: 'Ursa Major',
+      address: {
+        city: 'Portland',
+        state: 'Oregon',
+        country: 'USA'
+      }
+    });
+
+    const film = await Film.create({
+      title: 'Life of Harvey',
+      studio: studio._id,
+      released: 2020,
+      cast: [{
+        role: 'The Dog',
+        actor: actor._id
+      }]
+    });
+
     return request(app)
       .get(`/api/v1/actors/${actor._id}`)
       .then(res => {
@@ -66,7 +88,8 @@ describe('actor route tests', () => {
           _id: expect.any(String),
           name: 'Havard Forestborn',
           dob: '2010-06-06T00:00:00.000Z',
-          pob: 'Humboldt, CA'
+          pob: 'Humboldt, CA',
+          films: [{ _id: film._id.toString(), title: film.title, released: film.released }]
         });
       });
   });
