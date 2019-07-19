@@ -117,7 +117,7 @@ describe('actor route tests', () => {
       });
   });
 
-  it('can DELETE a actor', async() => {
+  it('can DELETE a actor with no films', async() => {
     const actor = await Actor.create({
       name: 'Nerd Bomb',
       dob: '1982-05-14',
@@ -132,6 +132,39 @@ describe('actor route tests', () => {
           dob: '1982-05-14T00:00:00.000Z',
           pob: 'Rochester, NY'
         });
+      });
+  });
+
+  it('will throw an error is someone tries to DELETE an actor that has films', async() => {
+    const studio = await Studio.create({
+      name: 'Ursa Minor',
+      address: {
+        city: 'Rochester',
+        state: 'NY',
+        country: 'USA'
+      }
+    });
+
+    const actor = await Actor.create({
+      name: 'Nerd Bomb',
+      dob: '1982-05-14',
+      pob: 'Rochester, NY'
+    });
+
+    const film = await Film.create({
+      title: 'Life of Harvey',
+      studio: studio._id,
+      released: 2020,
+      cast: [{
+        role: 'The Dog',
+        actor: actor._id
+      }]
+    });
+
+    return request(app)
+      .delete(`/api/v1/actors/${actor._id}`)
+      .then(res => {
+        expect(res.status).toEqual(409);
       });
   });
 
